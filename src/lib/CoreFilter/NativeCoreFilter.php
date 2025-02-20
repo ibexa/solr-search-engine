@@ -24,6 +24,7 @@ use RuntimeException;
  * - prioritized languages fallback
  * - always available language fallback
  * - main language search
+ * - optionally ignore language filter, search in all translations
  */
 class NativeCoreFilter extends CoreFilter
 {
@@ -104,14 +105,20 @@ class NativeCoreFilter extends CoreFilter
         $excludeTranslationsFromAlwaysAvailable =
             $languageSettings['excludeTranslationsFromAlwaysAvailable'] ?? true;
 
+        $excludeCoreCriterion =
+            $languageSettings['excludeCoreCriterion'] ?? false;
+
         $criteria = [
             new CustomField(self::FIELD_DOCUMENT_TYPE, Operator::EQ, $documentTypeIdentifier),
-            $this->getCoreCriterion(
+        ];
+
+        if (!$excludeCoreCriterion) {
+            $criteria[] = $this->getCoreCriterion(
                 $languages,
                 $useAlwaysAvailable,
                 $excludeTranslationsFromAlwaysAvailable
-            ),
-        ];
+            );
+        }
 
         if ($query->filter !== null) {
             $criteria[] = $query->filter;
